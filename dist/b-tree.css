@@ -1,0 +1,36 @@
+b-tree li {
+  padding: 10px;
+}
+
+b-tree [draggable]:hover {
+  cursor: move;
+}
+
+b-tree .drag-over {
+  border: 1px dashed #333;
+}
+
+b-tree .cursor {
+  position: fixed;
+  width: 100%;
+  border-bottom: 1px solid #c7d2d8;
+  height: 1px;
+}
+
+b-tree .marker {
+  position: absolute;
+  height: 4px;
+  width: 4px;
+  margin-top: -2px;
+  border: 1px solid #c7d2d8;
+  border-radius: 4px;
+  background: #c7d2d8;
+}
+
+b-tree .handle {
+  display: inline-block;
+}
+
+b-tree .hidden {
+  display: none;
+}

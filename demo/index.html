@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demo</title>
+    <meta charset="utf-8">
+    <script src="js/bosonic-polyfills.js"></script>
+    <script src="js/b-tree.js"></script>
+    <link href="css/b-tree.css" rel="stylesheet">
+</head>
+<body>
+
+    <button id="toggle-prevent-drop">Prevent drop</button>
+
+    <b-tree>
+        <ul>
+            <li>Item 1</li>
+            <li>
+                Item 3
+                <ul>
+                    <li>Item 3.1</li>
+                    <li>Item 3.2</li>
+                </ul>
+            </li>
+            <li>Item 4</li>
+        </ul>
+    </b-tree>
+
+    <form id="add">
+        <input type="text" id="node-to-add" />
+    </form>
+
+    <div id="log"></div>
+
+    <script type="text/javascript">
+        var form = document.getElementById('add');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var value = document.getElementById('node-to-add').value;
+            var li = document.createElement('li');
+            li.setAttribute('draggable', true);
+            li.innerHTML = value;
+
+            console.log(li);
+
+            document.querySelector('b-tree ul').appendChild(li);
+
+            document.getElementById('node-to-add').value = '';
+
+        }, false);
+
+        var togglePreventBtn = document.getElementById('toggle-prevent-drop');
+        togglePreventBtn.addEventListener('click', function(e) {
+            togglePreventDrop();
+        }, false);
+
+
+        var droppable = true;
+        function togglePreventDrop() {
+            droppable = !droppable;
+
+            togglePreventBtn.innerHTML = droppable ? 'prent drop' : 'allow drop';
+        }
+
+        function preventDrop(e) {
+            if (droppable) return;
+
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            window.alert('Drop is not allowed');
+        }
+
+        var bTree = document.querySelector('b-tree ul');
+        bTree.addEventListener('drop', preventDrop, false);
+
+    </script>
+</body>
