@@ -9,19 +9,51 @@
 </head>
 <body>
 
+<style>
+    .item {
+        display: inline-block;
+        padding: 10px;
+        background: white;
+        border: 1px solid #c3c3c3;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .drag-over > .item {
+        background: #3c3c3c;
+        color: white;
+    }
+
+    ul {
+        list-style-type: none;
+        list-style-position: inside;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    > ul {
+        margin: 0;
+        padding: 5px 0;
+    }
+
+    li {
+        margin: 5px 0;
+    }
+</style>
+
     <button id="toggle-prevent-drop">Prevent drop</button>
 
     <b-tree>
         <ul>
-            <li>Item 1</li>
+            <li><div class="item">Item 1</div></li>
             <li>
-                Item 3
+                <div class="item">Item 3</div>
                 <ul>
-                    <li>Item 3.1</li>
-                    <li>Item 3.2</li>
+                    <li><div class="item">Item 3.1</div></li>
+                    <li><div class="item">Item 3.2</div></li>
                 </ul>
             </li>
-            <li>Item 4</li>
+            <li><div class="item">Item 4</div></li>
         </ul>
     </b-tree>
 
@@ -39,8 +71,6 @@
             var li = document.createElement('li');
             li.setAttribute('draggable', true);
             li.innerHTML = value;
-
-            console.log(li);
 
             document.querySelector('b-tree ul').appendChild(li);
 

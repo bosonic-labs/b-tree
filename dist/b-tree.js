@@ -11,6 +11,22 @@
                     return isChildren;
                 }
             },
+            getFirstParentTarget: {
+                enumerable: true,
+                value: function (node) {
+                    if (node.classList.contains('cursor') || node.classList.contains('marker')) {
+                        return this.querySelector('ul');
+                    }
+                    var parent = null;
+                    while (node && !parent) {
+                        if (node.nodeName === 'UL' || node.nodeName === 'LI') {
+                            parent = node;
+                        }
+                        node = node.parentNode;
+                    }
+                    return parent;
+                }
+            },
             getParentLi: {
                 enumerable: true,
                 value: function (node) {
@@ -30,9 +46,9 @@
                 value: function () {
                     var lis = this.querySelectorAll('li');
                     var handle = document.createElement('a');
-                    handle.classList.add('handle');
+                    handle.classList.add('toggle-collapse');
                     handle.setAttribute('href', '#');
-                    handle.innerHTML = '|| - ';
+                    handle.innerHTML = '>';
                     Array.prototype.forEach.call(lis, function (li) {
                         li.insertBefore(handle.cloneNode(true), li.firstChild);
                         li.setAttribute('draggable', 'true');
@@ -53,8 +69,28 @@
                     this.addEventListener('dragstart', this.onDragStart.bind(this), false);
                     this.addEventListener('dragover', this.onDragOver.bind(this), false);
                     this.addEventListener('dragenter', this.onDragEnter.bind(this), false);
+                    this.addEventListener('dragleave', this.onDragLeave.bind(this), false);
                     this.addEventListener('dragend', this.onDragEnd.bind(this), false);
                     this.addEventListener('drop', this.onDrop.bind(this), false);
+                    this.addEventListener('click', this.onToggleCollapseClick.bind(this), false);
+                }
+            },
+            onToggleCollapseClick: {
+                enumerable: true,
+                value: function (e) {
+                    if (!e.target.classList.contains('toggle-collapse')) {
+                        return;
+                    }
+                    e.preventDefault();
+                    var li = this.getParentLi(e.target);
+                    var ul = li.querySelector('ul');
+                    if (ul.classList.contains('collapsed')) {
+                        ul.classList.remove('collapsed');
+                        li.classList.remove('collapsed');
+                    } else {
+                        ul.classList.add('collapsed');
+                        li.classList.add('collapsed');
+                    }
                 }
             },
             onDragStart: {
@@ -67,34 +103,35 @@
             },
             getInsertPoint: {
                 enumerable: true,
-                value: function (overedNode, mouseY) {
-                    var node = overedNode;
-                    if (!this.isChildrenOf(node, this.dragSrcEl)) {
-                        if (node.nodeName === 'UL') {
-                            var list = node.children;
-                            var y = mouseY;
-                            var match = false;
-                            var iterator = 0;
-                            while (!match && iterator < list.length) {
-                                var li = list[iterator];
-                                var currentY = li.offsetTop;
-                                if (y < currentY) {
-                                    match = li;
-                                    this.dropIndicator.classList.remove('hidden');
-                                    this.dropIndicator.style.top = li.offsetTop + 'px';
-                                    this.dropIndicator.querySelector('.marker').style.left = node.offsetLeft + 'px';
-                                    setTimeout(function () {
-                                    }, 1000);
-                                }
-                                iterator++;
+                value: function (hoveredNode, mouseY) {
+                    var parent = this.getFirstParentTarget(hoveredNode);
+                    if (!parent) {
+                        return null;
+                    }
+                    if (this.isChildrenOf(hoveredNode, this.dragSrcEl)) {
+                        return null;
+                    }
+                    if (parent.nodeName === 'UL') {
+                        var list = parent.children;
+                        var match = false;
+                        var iterator = 0;
+                        while (!match && iterator < list.length) {
+                            var li = list[iterator];
+                            var currentY = li.offsetTop;
+                            if (mouseY < currentY) {
+                                match = li;
+                                this.dropIndicator.classList.remove('hidden');
+                                this.dropIndicator.style.top = li.offsetTop - 7.5 + 'px';
+                                this.dropIndicator.querySelector('.marker').style.left = li.offsetLeft - 10 + 'px';
+                                setTimeout(function () {
+                                }, 1000);
                             }
-                            return li;
-                        } else {
-                            this.dropIndicator.classList.remove('hidden');
-                            this.dropIndicator.style.top = node.offsetTop + node.offsetHeight + 'px';
-                            this.dropIndicator.querySelector('.marker').style.left = node.offsetLeft + 'px';
-                            return node;
+                            iterator++;
                         }
+                        return li;
+                    } else {
+                        this.dropIndicator.classList.add('hidden');
+                        return parent;
                     }
                 }
             },
@@ -102,16 +139,13 @@
                 enumerable: true,
                 value: function (e) {
                     e.preventDefault();
-                    if (this.isChildrenOf(this.getParentLi(e.target), this.dragSrcEl)) {
+                    var node = this.getFirstParentTarget(e.target);
+                    if (this.isChildrenOf(node, this.dragSrcEl)) {
                         e.dataTransfer.dropEffect = 'none';
                     } else {
                         e.dataTransfer.dropEffect = 'move';
-                        var node = e.target;
-                        if (node.nodeName === '#text') {
-                            node = node.parentNode;
-                        }
-                        if (node.classList.contains('cursor')) {
-                            node = this.querySelector('ul');
+                        if (node === null) {
+                            console.log(e.target, node);
                         }
                         this.getInsertPoint(node, e.clientY);
                     }
@@ -120,12 +154,37 @@
             onDragEnter: {
                 enumerable: true,
                 value: function (e) {
+                    e.preventDefault();
+                    if (e.target.nodeName !== 'UL') {
+                        var li = this.getParentLi(e.target);
+                        console.log('enter', li);
+                        if (li) {
+                            li.classList.add('drag-over');
+                        }
+                    }
+                }
+            },
+            onDragLeave: {
+                enumerable: true,
+                value: function (e) {
+                    e.preventDefault();
+                    if (e.target.nodeName !== 'UL') {
+                        var li = this.getParentLi(e.target);
+                        console.log('leave', li);
+                        if (li) {
+                            li.classList.remove('drag-over');
+                        }
+                    }
                 }
             },
             onDragEnd: {
                 enumerable: true,
                 value: function (e) {
                     this.dropIndicator.classList.add('hidden');
+                    var hovered = this.querySelector('.drag-over');
+                    if (hovered) {
+                        hovered.classList.remove('drag-over');
+                    }
                 }
             },
             onDrop: {
@@ -133,13 +192,7 @@
                 value: function (e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    var node = e.target;
-                    if (node.nodeName === 'A') {
-                        node = node.parentNode;
-                    }
-                    if (node.classList.contains('cursor')) {
-                        node = this.querySelector('ul');
-                    }
+                    var node = this.getFirstParentTarget(e.target);
                     if (this.isChildrenOf(node, this.dragSrcEl)) {
                         return;
                     }

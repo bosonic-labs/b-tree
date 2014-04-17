@@ -1,13 +1,19 @@
-b-tree li {
-  padding: 10px;
+b-tree [draggable] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+b-tree [draggable] * {
+  -moz-user-drag: none;
+  -khtml-user-drag: none;
+  -webkit-user-drag: none;
+  user-drag: none;
 }
 
 b-tree [draggable]:hover {
   cursor: move;
-}
-
-b-tree .drag-over {
-  border: 1px dashed #333;
 }
 
 b-tree .cursor {
@@ -28,9 +34,24 @@ b-tree .marker {
 }
 
 b-tree .handle {
-  display: inline-block;
+  display: none;
 }
 
 b-tree .hidden {
   display: none;
+}
+
+b-tree .toggle-collapse {
+  float: left;
+}
+
+b-tree ul {
+  display: block;
+  max-height: 1000px;
+  overflow: auto;
+  transition: all 1s cubic-bezier(0, 1, 0.5, 1);
+}
+
+b-tree ul.collapsed {
+  max-height: 0px;
 }
