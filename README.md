@@ -2,6 +2,8 @@
 
 A [Bosonic](http://bosonic.github.io) element which can be used for a sortable tree.
 
+**WARNING**: IE 9 not supported (drag and drop api only accept <a> element)
+
 [Check the demo](http://bosonic.github.io/demos.html)
 
 ## Install
